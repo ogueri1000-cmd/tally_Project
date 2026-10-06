@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#14363A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Tally – Shop Book</title>
+<style>
+:root{--bg:#EDF1EF;--card:#fff;--ink:#14262B;--mut:#62767B;--line:#d9e2e0;--pri:#0F6B5F;--top:#14363A;--in:#1C8A52;--out:#C8452F;--bal:#26509E;--warn:#B7791F}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{font-family:"Avenir Next","Segoe UI",Roboto,system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.35;font-variant-numeric:tabular-nums}
+header{position:fixed;top:0;left:0;right:0;z-index:5;background:var(--top);color:#fff;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;display:flex;justify-content:space-between;align-items:baseline}
+header b{font-size:18px;letter-spacing:.2px}
+header span{font-size:13px;opacity:.75}
+#view{padding:calc(62px + env(safe-area-inset-top)) 14px 100px;max-width:640px;margin:0 auto}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:5;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding-bottom:env(safe-area-inset-bottom)}
+nav button{background:none;border:0;padding:9px 0 7px;font-size:11.5px;color:var(--mut);display:flex;flex-direction:column;align-items:center;gap:3px;font-family:inherit}
+nav button.on{color:var(--pri);font-weight:700}
+nav svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+h2{font-size:17px;margin:20px 2px 8px}
+h2:first-child{margin-top:4px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.mut{color:var(--mut);font-size:13px}
+.big{font-size:26px;font-weight:700}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tri{display:grid;grid-template-columns:repeat(3,1fr);background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.tri div{padding:6px 10px 7px;border-top:4px solid}
+.tri .i{border-color:var(--in)}.tri .o{border-color:var(--out)}.tri .b{border-color:var(--bal)}
+.tri small{display:block;font-size:11.5px;color:var(--mut)}
+.tri strong{font-size:17px}
+.card .tri{margin-top:9px}
+.i-t{color:var(--in)}.o-t{color:var(--out)}.b-t{color:var(--bal)}
+.btn{background:var(--pri);color:#fff;border:0;border-radius:10px;padding:12px 16px;font-size:15px;font-weight:600;font-family:inherit}
+.btn.sec{background:#fff;color:var(--pri);border:1.5px solid var(--pri)}
+.btn.red{background:var(--out)}
+.btn.in{background:var(--in)}
+.btn.full{width:100%}
+.btn.sm{padding:8px 12px;font-size:13.5px}
+.btns{display:flex;gap:8px;margin-top:10px}.btns .btn{flex:1}
+input,select{width:100%;font-family:inherit;font-size:16px;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+input:focus,select:focus{outline:none;border-color:var(--pri)}
+label{display:block;font-size:13px;color:var(--mut);margin:11px 0 4px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.badge{font-size:11.5px;padding:2px 8px;border-radius:20px;background:#fbeed5;color:var(--warn);font-weight:600}
+.badge.r{background:#fbe0da;color:var(--out)}
+.seg{display:flex;background:#dfe7e5;border-radius:10px;padding:3px;margin-bottom:10px}
+.seg button{flex:1;border:0;background:none;padding:8px 4px;border-radius:8px;font-size:13.5px;font-family:inherit;color:var(--mut)}
+.seg button.on{background:#fff;color:var(--ink);font-weight:700;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 14px;background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:8px}
+.item.off{opacity:.5}
+.q{font-weight:700;font-size:16px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:right;font-weight:600;color:var(--mut);padding:6px 4px;border-bottom:1.5px solid var(--line)}
+td{text-align:right;padding:7px 4px;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+.empty{text-align:center;color:var(--mut);padding:30px 16px}
+#cartbar{position:fixed;left:12px;right:12px;bottom:calc(64px + env(safe-area-inset-bottom));z-index:6;display:none}
+#cartbar .btn{width:100%;display:flex;justify-content:space-between;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+#scrim{position:fixed;inset:0;background:rgba(10,25,28,.5);z-index:20;display:none}
+#sheet{position:fixed;left:0;right:0;bottom:0;max-height:92vh;overflow:auto;background:var(--bg);z-index:21;border-radius:18px 18px 0 0;padding:16px 16px calc(20px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .22s ease;max-width:640px;margin:0 auto}
+#sheet.open{transform:none}
+#sheet h3{margin:0 0 4px;font-size:19px}
+.x{float:right;background:none;border:0;font-size:26px;line-height:1;color:var(--mut)}
+#toast{position:fixed;left:50%;bottom:130px;transform:translateX(-50%);background:#14262B;color:#fff;padding:10px 16px;border-radius:20px;font-size:14px;z-index:30;display:none;max-width:90%}
+.warn{background:#fbeed5;color:#7a5313;padding:8px 12px;border-radius:10px;font-size:13px;margin-bottom:10px}
+.qty{display:flex;align-items:center;gap:8px}
+.qty button{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--line);background:#fff;font-size:18px;font-family:inherit}
+.tot{font-size:22px;font-weight:700}
+.receipt{background:#fff;border:1px dashed var(--mut);border-radius:8px;padding:14px;font-size:14px}
+</style>
+</head>
+<body>
+<header><b id="shop">Tally</b><span id="today"></span></header>
+<main id="view"></main>
+<div id="cartbar"><button class="btn" onclick="checkout()"><span id="cb1"></span><span id="cb2"></span></button></div>
+<nav id="nav"></nav>
+<div id="scrim" onclick="closeSheet()"></div>
+<div id="sheet"></div>
+<div id="toast"></div>
+<input type="file" id="restore" accept=".json,application/json" style="display:none">
+
+<script>
+/* ---------- storage (works fully offline; data stays on this phone) ---------- */
+const KEY='tally.shop.v1';
+const ls=(()=>{try{localStorage.setItem('__t','1');localStorage.removeItem('__t');return localStorage}catch(e){return null}})();
+const blank=()=>({settings:{shop:'My Shop',cur:'$',low:5},items:[],moves:[],sales:[],seq:{sale:1,item:1}});
+let db=(()=>{try{const r=ls&&ls.getItem(KEY);return r?JSON.parse(r):blank()}catch(e){return blank()}})();
+let cache=null;
+const save=()=>{cache=null;try{ls&&ls.setItem(KEY,JSON.stringify(db))}catch(e){toast('Could not save – storage full?')}};
+
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const r2=n=>Math.round((+n||0)*100)/100;
+const money=n=>db.settings.cur+r2(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+const num=n=>(+n||0).toLocaleString(undefined,{maximumFractionDigits:3});
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const dstr=t=>new Date(t).toLocaleDateString(undefined,{day:'numeric',month:'short'});
+const tstr=t=>new Date(t).toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'});
+const sod=(t=Date.now())=>{const d=new Date(t);d.setHours(0,0,0,0);return d.getTime()};
+const sum=(a,f)=>a.reduce((x,y)=>x+f(y),0);
+const I=id=>db.items.find(x=>x.id===id);
+const lowLvl=it=>it.reorder??db.settings.low;
+const KIND={opening:'Opening stock',purchase:'Stock in',sale:'Sale',adjust:'Adjustment'};
+function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display='none',2200)}
+function st(id){
+  if(!cache){cache={};for(const m of db.moves){const c=cache[m.itemId]||(cache[m.itemId]={i:0,o:0,b:0});m.type==='IN'?c.i+=m.qty:c.o+=m.qty;c.b=c.i-c.o}}
+  return cache[id]||{i:0,o:0,b:0};
+}
+function addMove(itemId,type,qty,kind,extra={}){db.moves.push({id:uid(),date:Date.now(),itemId,type,qty:+qty,kind,...extra})}
+const tri=(i,o,b)=>`<div class="tri"><div class="i"><small>Stock in</small><strong class="i-t">${num(i)}</strong></div><div class="o"><small>Stock out</small><strong class="o-t">${num(o)}</strong></div><div class="b"><small>Balance</small><strong class="b-t">${num(b)}</strong></div></div>`;
+
+/* ---------- sheet / confirm ---------- */
+function sheet(h){$('#sheet').innerHTML=`<button class="x" onclick="closeSheet()">×</button>`+h;$('#scrim').style.display='block';requestAnimationFrame(()=>$('#sheet').classList.add('open'))}
+function closeSheet(){$('#sheet').classList.remove('open');$('#scrim').style.display='none'}
+let askFn=null;
+function ask(msg,label,fn){askFn=fn;sheet(`<h3>Are you sure?</h3><p>${esc(msg)}</p><div class="btns"><button class="btn sec" onclick="closeSheet()">Cancel</button><button class="btn red" onclick="closeSheet();askFn()">${esc(label)}</button></div>`)}
+
+/* ---------- navigation ---------- */
+const ICON={
+ home:'<path d="M3 11l9-8 9 8M5 10v10h14V10"/>',
+ sell:'<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.5 12h11L21 7H6"/>',
+ stock:'<path d="M21 8l-9-5-9 5v8l9 5 9-5zM3 8l9 5 9-5M12 13v8"/>',
+ rec:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+ more:'<path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/>'};
+const TABS=[['home','Home'],['sell','Sell'],['stock','Stock'],['rec','Records'],['more','Reports']];
+let tab='home',cart=[],sq='',stq='',recMode='sales',recRange=7,recType='ALL',repRange=7;
+function go(t){tab=t;sq='';stq='';render();scrollTo(0,0)}
+function render(){
+  $('#shop').textContent=db.settings.shop;
+  $('#today').textContent=new Date().toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'});
+  $('#nav').innerHTML=TABS.map(([k,l])=>`<button class="${tab===k?'on':''}" onclick="go('${k}')"><svg viewBox="0 0 24 24">${ICON[k]}</svg>${l}</button>`).join('');
+  $('#view').innerHTML=({home:vHome,sell:vSell,stock:vStock,rec:vRec,more:vMore})[tab]();
+  if(tab==='sell')sellList();if(tab==='stock')stockList();
+  cartBar();
+}
+function cartBar(){
+  const b=$('#cartbar');
+  if(tab!=='sell'||!cart.length){b.style.display='none';return}
+  b.style.display='block';$('#cb1').textContent=`Checkout · ${num(sum(cart,c=>c.qty))} item(s)`;$('#cb2').textContent=money(sum(cart,c=>c.qty*c.price));
+}
+
+/* ---------- HOME ---------- */
+function vHome(){
+  const t0=sod(),ts=db.sales.filter(s=>!s.void&&s.date>=t0);
+  const rev=sum(ts,s=>s.total),prof=sum(ts,s=>s.total-sum(s.lines,l=>l.cost*l.qty));
+  const tm=db.moves.filter(m=>m.date>=t0&&I(m.itemId));
+  const tin=sum(tm.filter(m=>m.type==='IN'),m=>m.qty),tout=sum(tm.filter(m=>m.type==='OUT'),m=>m.qty);
+  const bal=sum(db.items,i=>st(i.id).b),val=sum(db.items,i=>st(i.id).b*i.cost);
+  const low=db.items.filter(i=>st(i.id).b<=lowLvl(i)).sort((a,b)=>st(a.id).b-st(b.id).b);
+  const rec=[...db.moves].filter(m=>I(m.itemId)).sort((a,b)=>b.date-a.date).slice(0,8);
+  return `${ls?'':'<div class="warn">This browser is blocking storage, so data will be lost when you close the app. Open the file in your phone browser directly.</div>'}
+  <div class="card"><div class="mut">Sales today · ${ts.length} sale(s)</div><div class="big">${money(rev)}</div><div class="mut">Profit ${money(prof)}</div></div>
+  <h2>Stock movement today</h2>${tri(tin,tout,bal)}
+  <div class="mut" style="margin:6px 2px 0">Balance is all units on hand · stock value ${money(val)}</div>
+  <div class="btns"><button class="btn" onclick="go('sell')">New sale</button><button class="btn in" onclick="stockIn()">Stock in</button></div>
+  <h2>Running low ${low.length?`<span class="badge r">${low.length}</span>`:''}</h2>
+  ${low.length?low.slice(0,8).map(i=>`<div class="item" onclick="itemSheet('${i.id}')"><div><b>${esc(i.name)}</b><div class="mut">Reorder at ${num(lowLvl(i))}</div></div><div class="q ${st(i.id).b<=0?'o-t':''}">${num(st(i.id).b)} ${esc(i.unit)}</div></div>`).join(''):`<div class="empty">${db.items.length?'Everything is stocked above its reorder level.':'No items yet. Add your first item in the Stock tab.'}</div>`}
+  <h2>Latest activity</h2>
+  ${rec.length?rec.map(moveRow).join(''):'<div class="empty">Sales and stock changes will show up here.</div>'}`;
+}
+function moveRow(m){
+  const it=I(m.itemId),inn=m.type==='IN';
+  return `<div class="item"><div><b>${esc(it?it.name:'(deleted item)')}</b><div class="mut">${KIND[m.kind]||m.kind}${m.ref?' · '+esc(m.ref):''} · ${dstr(m.date)} ${tstr(m.date)}</div></div><div class="q ${inn?'i-t':'o-t'}">${inn?'+':'−'}${num(m.qty)}</div></div>`;
+}
+
+/* ---------- SELL ---------- */
+function vSell(){return `<input id="sq" placeholder="Search item or SKU" oninput="sq=this.value;sellList()" value="${esc(sq)}"><div id="sl" style="margin-top:10px"></div>`}
+function sellList(){
+  const q=sq.toLowerCase();
+  const l=db.items.filter(i=>!q||(i.name+' '+i.sku+' '+i.cat).toLowerCase().includes(q));
+  $('#sl').innerHTML=l.length?l.map(i=>{
+    const b=st(i.id).b,inC=cart.find(c=>c.id===i.id);
+    return `<div class="item ${b<=0?'off':''}" onclick="addCart('${i.id}')"><div><b>${esc(i.name)}</b><div class="mut">${money(i.price)} · ${num(b)} ${esc(i.unit)} left</div></div>${inC?`<span class="badge" style="background:#d6efe3;color:var(--in)">${num(inC.qty)} in cart</span>`:'<span class="mut">Tap to add</span>'}</div>`}).join(''):`<div class="empty">${db.items.length?'No match.':'Add items in the Stock tab first.'}</div>`;
+}
+function addCart(id){
+  const it=I(id),b=st(id).b,c=cart.find(x=>x.id===id),n=(c?c.qty:0)+1;
+  if(n>b){toast(b<=0?'Out of stock':`Only ${num(b)} in stock`);return}
+  c?c.qty=n:cart.push({id,qty:1,price:it.price});
+  sellList();cartBar();
+}
+let co={disc:'',method:'Cash',paid:'',cust:''};
+function checkout(){
+  if(!cart.length)return;
+  const sub=sum(cart,c=>c.qty*c.price);
+  sheet(`<h3>Checkout</h3>
+  ${cart.map((c,k)=>{const it=I(c.id);return `<div class="card"><div class="row"><b>${esc(it.name)}</b><button class="x" style="font-size:20px" onclick="cartDel(${k})">Remove</button></div>
+   <div class="row" style="margin-top:6px"><div class="qty"><button onclick="cartQty(${k},-1)">−</button><b>${num(c.qty)}</b><button onclick="cartQty(${k},1)">+</button></div>
+   <div style="width:120px"><input inputmode="decimal" value="${c.price}" oninput="cartPrice(${k},this.value)" aria-label="Price"></div></div></div>`}).join('')}
+  <div class="two"><div><label>Discount (amount)</label><input inputmode="decimal" value="${esc(co.disc)}" oninput="co.disc=this.value;coTot()"></div>
+  <div><label>Payment</label><select onchange="co.method=this.value;coTot()">${['Cash','Card','Mobile money','Credit (pay later)'].map(m=>`<option ${co.method===m?'selected':''}>${m}</option>`).join('')}</select></div></div>
+  <label>Amount received (leave blank for exact)</label><input inputmode="decimal" value="${esc(co.paid)}" oninput="co.paid=this.value;coTot()">
+  <label>Customer (optional)</label><input value="${esc(co.cust)}" oninput="co.cust=this.value">
+  <div class="card" style="margin-top:12px"><div class="row"><span>Total</span><span class="tot" id="ctot"></span></div><div id="cchg" class="mut"></div></div>
+  <button class="btn full" onclick="finishSale()">Complete sale</button>`);
+  coTot();
+}
+function coCalc(){const sub=sum(cart,c=>c.qty*c.price),d=Math.min(+co.disc||0,sub),total=r2(sub-d);const credit=co.method.startsWith('Credit');const paid=credit?(co.paid===''?0:+co.paid):(co.paid===''?total:+co.paid);return{sub,d,total,paid,credit}}
+function coTot(){const x=coCalc();if(!$('#ctot'))return;$('#ctot').textContent=money(x.total);$('#cchg').textContent=x.paid>=x.total?(x.paid>x.total?'Change to give: '+money(x.paid-x.total):'Paid in full'):'Balance due: '+money(x.total-x.paid)}
+function cartQty(k,d){const c=cart[k],n=c.qty+d,b=st(c.id).b;if(n<=0){cart.splice(k,1)}else if(n>b){toast(`Only ${num(b)} in stock`);return}else c.qty=n;cart.length?checkout():closeSheet();render()}
+function cartDel(k){cart.splice(k,1);cart.length?checkout():closeSheet();render()}
+function cartPrice(k,v){cart[k].price=+v||0;coTot()}
+function finishSale(){
+  const x=coCalc();if(!cart.length)return;
+  const no='S'+String(db.seq.sale++).padStart(5,'0'),now=Date.now();
+  const lines=cart.map(c=>{const it=I(c.id);return{itemId:c.id,name:it.name,qty:c.qty,price:c.price,cost:it.cost}});
+  const sale={id:uid(),no,date:now,lines,discount:x.d,total:x.total,paid:Math.min(x.paid,x.total),method:co.method,customer:co.cust.trim(),void:false};
+  db.sales.push(sale);
+  lines.forEach(l=>addMove(l.itemId,'OUT',l.qty,'sale',{ref:no,saleId:sale.id}));
+  save();cart=[];co={disc:'',method:'Cash',paid:'',cust:''};
+  receipt(sale.id,x.paid>x.total?x.paid-x.total:0);render();
+}
+function receipt(id,change){
+  const s=db.sales.find(x=>x.id===id);if(!s)return;
+  sheet(`<h3>${s.void?'Voided sale':'Receipt'} ${s.no}</h3><div class="mut" style="margin-bottom:8px">${dstr(s.date)} ${tstr(s.date)}${s.customer?' · '+esc(s.customer):''}</div>
+  <div class="receipt"><b>${esc(db.settings.shop)}</b>
+  <table style="margin-top:8px">${s.lines.map(l=>`<tr><td>${esc(l.name)}<div class="mut">${num(l.qty)} × ${money(l.price)}</div></td><td>${money(l.qty*l.price)}</td></tr>`).join('')}
+  ${s.discount?`<tr><td>Discount</td><td>−${money(s.discount)}</td></tr>`:''}
+  <tr><td><b>Total</b></td><td><b>${money(s.total)}</b></td></tr>
+  <tr><td>${esc(s.method)}</td><td>${money(s.paid)}</td></tr>
+  ${s.paid<s.total?`<tr><td>Balance due</td><td>${money(s.total-s.paid)}</td></tr>`:''}
+  ${change?`<tr><td>Change</td><td>${money(change)}</td></tr>`:''}</table></div>
+  <div class="btns"><button class="btn sec" onclick="shareText('${s.id}')">Share / copy</button>${s.void?'':`<button class="btn red" onclick="voidSale('${s.id}')">Void sale</button>`}</div>
+  <div class="btns"><button class="btn full" onclick="closeSheet()">Done</button></div>`);
+}
+function shareText(id){
+  const s=db.sales.find(x=>x.id===id);
+  const t=`${db.settings.shop}\nReceipt ${s.no} · ${dstr(s.date)} ${tstr(s.date)}\n`+s.lines.map(l=>`${l.name} ${num(l.qty)} x ${money(l.price)} = ${money(l.qty*l.price)}`).join('\n')+(s.discount?`\nDiscount -${money(s.discount)}`:'')+`\nTotal ${money(s.total)} (${s.method})`;
+  if(navigator.share)navigator.share({text:t}).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(t).then(()=>toast('Receipt copied'));
+}
+function voidSale(id){ask('This cancels the sale and returns the items to stock.','Void sale',()=>{
+  const s=db.sales.find(x=>x.id===id);s.void=true;db.moves=db.moves.filter(m=>m.saleId!==id);save();toast('Sale voided');render()})}
+
+/* ---------- STOCK ---------- */
+function vStock(){return `<div class="btns" style="margin:0 0 10px"><button class="btn" onclick="itemForm()">New item</button><button class="btn in" onclick="stockIn()">Stock in</button></div>
+<input placeholder="Search item, SKU or category" oninput="stq=this.value;stockList()" value="${esc(stq)}"><div id="stl" style="margin-top:10px"></div>`}
+function stockList(){
+  const q=stq.toLowerCase();
+  const l=db.items.filter(i=>!q||(i.name+' '+i.sku+' '+i.cat).toLowerCase().includes(q));
+  $('#stl').innerHTML=l.length?l.map(i=>{const s=st(i.id);return `<div class="card" onclick="itemSheet('${i.id}')"><div class="row"><div><b>${esc(i.name)}</b><div class="mut">${esc(i.sku)}${i.cat?' · '+esc(i.cat):''} · ${money(i.price)}</div></div>${s.b<=0?'<span class="badge r">Out</span>':s.b<=lowLvl(i)?'<span class="badge">Low</span>':''}</div>${tri(s.i,s.o,s.b)}</div>`}).join(''):`<div class="empty">${db.items.length?'No match.':'No items yet. Tap “New item” to add one, or load sample items from the Reports tab.'}</div>`;
+}
+function itemSheet(id){
+  const it=I(id);if(!it)return;const s=st(id);
+  const mv=db.moves.filter(m=>m.itemId===id).sort((a,b)=>a.date-b.date);let run=0;
+  const rows=mv.map(m=>{run+=m.type==='IN'?m.qty:-m.qty;return{m,run}}).reverse();
+  sheet(`<h3>${esc(it.name)}</h3><div class="mut">${esc(it.sku)} · cost ${money(it.cost)} · price ${money(it.price)} · margin ${it.price?Math.round((it.price-it.cost)/it.price*100):0}%</div>
+  <div style="margin-top:10px">${tri(s.i,s.o,s.b)}</div>
+  <div class="btns"><button class="btn in" onclick="stockIn('${id}')">Stock in</button><button class="btn sec" onclick="adjust('${id}')">Count / adjust</button><button class="btn sec" onclick="itemForm('${id}')">Edit</button></div>
+  <h2>Stock card</h2>
+  <table><tr><th>Date</th><th>In</th><th>Out</th><th>Bal</th></tr>${rows.slice(0,60).map(({m,run})=>`<tr><td>${dstr(m.date)}<div class="mut">${KIND[m.kind]||''}${m.ref?' '+esc(m.ref):''}</div></td><td class="i-t">${m.type==='IN'?num(m.qty):''}</td><td class="o-t">${m.type==='OUT'?num(m.qty):''}</td><td><b>${num(run)}</b></td></tr>`).join('')}</table>`);
+}
+function itemForm(id){
+  const it=id?I(id):null;
+  const cats=[...new Set(db.items.map(i=>i.cat).filter(Boolean))];
+  sheet(`<h3>${it?'Edit item':'New item'}</h3>
+  <label>Name</label><input id="f_name" value="${esc(it?.name)}" placeholder="e.g. Rice 1kg">
+  <div class="two"><div><label>Category</label><input id="f_cat" list="cats" value="${esc(it?.cat)}"><datalist id="cats">${cats.map(c=>`<option value="${esc(c)}">`).join('')}</datalist></div>
+  <div><label>Unit</label><input id="f_unit" value="${esc(it?.unit||'pcs')}"></div></div>
+  <div class="two"><div><label>Cost price</label><input id="f_cost" inputmode="decimal" value="${it?it.cost:''}" oninput="mg()"></div>
+  <div><label>Selling price</label><input id="f_price" inputmode="decimal" value="${it?it.price:''}" oninput="mg()"></div></div>
+  <div class="mut" id="f_mg" style="margin-top:4px"></div>
+  <div class="two"><div><label>Reorder level</label><input id="f_re" inputmode="decimal" value="${it?lowLvl(it):db.settings.low}"></div>
+  ${it?'':`<div><label>Opening stock</label><input id="f_open" inputmode="decimal" value="0"></div>`}</div>
+  <label>SKU (auto if blank)</label><input id="f_sku" value="${esc(it?.sku)}">
+  <div class="btns"><button class="btn" onclick="saveItem('${id||''}')">Save item</button></div>
+  ${it?`<div class="btns"><button class="btn sec red" style="color:var(--out);border-color:var(--out)" onclick="delItem('${id}')">Delete item</button></div>`:''}`);mg();
+}
+function mg(){const c=+$('#f_cost').value||0,p=+$('#f_price').value||0;$('#f_mg').textContent=p?`Profit per unit ${money(p-c)} (${Math.round((p-c)/p*100)}% margin)`:''}
+function saveItem(id){
+  const name=$('#f_name').value.trim();if(!name){toast('Enter a name');return}
+  const d={name,cat:$('#f_cat').value.trim(),unit:$('#f_unit').value.trim()||'pcs',cost:+$('#f_cost').value||0,price:+$('#f_price').value||0,reorder:+$('#f_re').value||0};
+  let sku=$('#f_sku').value.trim();
+  if(id){const it=I(id);Object.assign(it,d);it.sku=sku||it.sku}
+  else{
+    const n=db.seq.item++;sku=sku||((name.replace(/[^a-z0-9]/gi,'').slice(0,3).toUpperCase()||'ITM')+'-'+String(n).padStart(3,'0'));
+    const it={id:uid(),sku,...d,created:Date.now()};db.items.push(it);
+    const o=+$('#f_open').value||0;if(o>0)addMove(it.id,'IN',o,'opening');
+  }
+  save();closeSheet();toast('Item saved');render();
+}
+function delItem(id){ask('The item and its stock history will be removed. Past sales receipts stay.','Delete',()=>{db.items=db.items.filter(i=>i.id!==id);db.moves=db.moves.filter(m=>m.itemId!==id);save();render()})}
+function stockIn(id){
+  if(!db.items.length){toast('Add an item first');return}
+  const cur=id?I(id):db.items[0];
+  sheet(`<h3>Stock in</h3><div class="mut">Date and time are recorded automatically.</div>
+  <label>Item</label><select id="si_item" onchange="siPick()">${db.items.map(i=>`<option value="${i.id}" ${i.id===cur.id?'selected':''}>${esc(i.name)}</option>`).join('')}</select>
+  <div class="two"><div><label>Quantity received</label><input id="si_q" inputmode="decimal" oninput="siTot()"></div><div><label>Cost per unit</label><input id="si_c" inputmode="decimal" value="${cur.cost}" oninput="siTot()"></div></div>
+  <div class="mut" id="si_t" style="margin-top:6px"></div>
+  <label>Supplier (optional)</label><input id="si_s"><label>Note (optional)</label><input id="si_n">
+  <div class="btns"><button class="btn in" onclick="saveIn()">Add to stock</button></div>`);
+  setTimeout(()=>$('#si_q').focus(),250);
+}
+function siPick(){$('#si_c').value=I($('#si_item').value).cost;siTot()}
+function siTot(){const q=+$('#si_q').value||0,c=+$('#si_c').value||0;$('#si_t').textContent=q?`Total cost ${money(q*c)} · new balance ${num(st($('#si_item').value).b+q)}`:''}
+function saveIn(){
+  const id=$('#si_item').value,q=+$('#si_q').value;if(!(q>0)){toast('Enter quantity');return}
+  const c=+$('#si_c').value||0;I(id).cost=c;
+  addMove(id,'IN',q,'purchase',{cost:c,ref:$('#si_s').value.trim(),note:$('#si_n').value.trim()});
+  save();closeSheet();toast('Stock added');render();
+}
+function adjust(id){
+  const it=I(id),b=st(id).b;
+  sheet(`<h3>Count / adjust</h3><div class="mut">${esc(it.name)} · system balance ${num(b)}</div>
+  <label>Actual quantity counted</label><input id="ad_q" inputmode="decimal" value="${b}" oninput="adDiff(${b})">
+  <div id="ad_d" class="mut" style="margin-top:6px"></div>
+  <label>Reason</label><select id="ad_r">${['Recount','Damaged','Expired','Lost / stolen','Found'].map(r=>`<option>${r}</option>`).join('')}</select>
+  <div class="btns"><button class="btn" onclick="saveAdj('${id}',${b})">Save adjustment</button></div>`);adDiff(b);
+}
+function adDiff(b){const d=(+$('#ad_q').value||0)-b;$('#ad_d').textContent=d===0?'No change':(d>0?'Adds ':'Removes ')+num(Math.abs(d))}
+function saveAdj(id,b){
+  const d=(+$('#ad_q').value||0)-b;if(!d){closeSheet();return}
+  addMove(id,d>0?'IN':'OUT',Math.abs(d),'adjust',{ref:$('#ad_r').value});save();closeSheet();toast('Stock adjusted');render();
+}
+
+/* ---------- RECORDS ---------- */
+const RANGES=[[1,'Today'],[7,'7 days'],[30,'30 days'],[0,'All']];
+const t0of=d=>d?sod(Date.now()-(d-1)*864e5):0;
+function vRec(){
+  const t0=t0of(recRange);
+  let body='';
+  if(recMode==='sales'){
+    const l=db.sales.filter(s=>s.date>=t0).sort((a,b)=>b.date-a.date).slice(0,200);
+    body=l.length?l.map(s=>`<div class="item ${s.void?'off':''}" onclick="receipt('${s.id}',0)"><div><b>${s.no}${s.void?' (void)':''}</b><div class="mut">${dstr(s.date)} ${tstr(s.date)} · ${num(sum(s.lines,x=>x.qty))} item(s) · ${esc(s.method)}${s.paid<s.total&&!s.void?' · due '+money(s.total-s.paid):''}</div></div><div class="q">${money(s.total)}</div></div>`).join(''):'<div class="empty">No sales in this period.</div>';
+    const tot=sum(db.sales.filter(s=>!s.void&&s.date>=t0),s=>s.total);
+    body=`<div class="card row"><span class="mut">Total sales</span><b>${money(tot)}</b></div>`+body;
+  }else{
+    const l=db.moves.filter(m=>m.date>=t0&&(recType==='ALL'||m.type===recType)&&I(m.itemId)).sort((a,b)=>b.date-a.date).slice(0,200);
+    body=`<div class="seg">${['ALL','IN','OUT'].map(t=>`<button class="${recType===t?'on':''}" onclick="recType='${t}';render()">${t==='ALL'?'All':t==='IN'?'Stock in':'Stock out'}</button>`).join('')}</div>`+(l.length?l.map(moveRow).join(''):'<div class="empty">No movements in this period.</div>');
+  }
+  return `<div class="seg"><button class="${recMode==='sales'?'on':''}" onclick="recMode='sales';render()">Sales</button><button class="${recMode==='moves'?'on':''}" onclick="recMode='moves';render()">Stock movements</button></div>
+  <div class="seg">${RANGES.map(([d,l])=>`<button class="${recRange===d?'on':''}" onclick="recRange=${d};render()">${l}</button>`).join('')}</div>${body}`;
+}
+
+/* ---------- REPORTS & SETTINGS ---------- */
+function vMore(){
+  const t0=t0of(repRange),ss=db.sales.filter(s=>!s.void&&s.date>=t0);
+  const rev=sum(ss,s=>s.total),cogs=sum(ss,s=>sum(s.lines,l=>l.cost*l.qty)),due=sum(ss,s=>s.total-s.paid);
+  const agg={};ss.forEach(s=>s.lines.forEach(l=>{const a=agg[l.name]||(agg[l.name]={q:0,r:0});a.q+=l.qty;a.r+=l.qty*l.price}));
+  const top=Object.entries(agg).sort((a,b)=>b[1].q-a[1].q).slice(0,5);
+  const ti=sum(db.items,i=>st(i.id).i),to=sum(db.items,i=>st(i.id).o),tb=ti-to,val=sum(db.items,i=>st(i.id).b*i.cost);
+  return `<div class="seg">${RANGES.map(([d,l])=>`<button class="${repRange===d?'on':''}" onclick="repRange=${d};render()">${l}</button>`).join('')}</div>
+  <div class="grid2"><div class="card"><div class="mut">Revenue</div><div class="q">${money(rev)}</div></div><div class="card"><div class="mut">Profit</div><div class="q i-t">${money(rev-cogs)}</div></div>
+  <div class="card"><div class="mut">Sales made</div><div class="q">${ss.length}</div></div><div class="card"><div class="mut">Owed by customers</div><div class="q ${due>0?'o-t':''}">${money(due)}</div></div></div>
+  <h2>Best sellers</h2>${top.length?`<div class="card"><table>${top.map(([n,a])=>`<tr><td>${esc(n)}</td><td>${num(a.q)} sold</td><td>${money(a.r)}</td></tr>`).join('')}</table></div>`:'<div class="empty">No sales in this period.</div>'}
+  <h2>Stock summary (all time)</h2>
+  <div class="card"><table><tr><th>Item</th><th>In</th><th>Out</th><th>Bal</th><th>Value</th></tr>
+  ${db.items.map(i=>{const s=st(i.id);return `<tr><td>${esc(i.name)}</td><td class="i-t">${num(s.i)}</td><td class="o-t">${num(s.o)}</td><td><b>${num(s.b)}</b></td><td>${money(s.b*i.cost)}</td></tr>`}).join('')}
+  <tr><td><b>Total</b></td><td class="i-t"><b>${num(ti)}</b></td><td class="o-t"><b>${num(to)}</b></td><td><b>${num(tb)}</b></td><td><b>${money(val)}</b></td></tr></table></div>
+  <h2>Export and backup</h2>
+  <div class="btns" style="margin-top:0"><button class="btn sec" onclick="csvStock()">Stock CSV</button><button class="btn sec" onclick="csvSales()">Sales CSV</button></div>
+  <div class="btns"><button class="btn" onclick="backup()">Save backup</button><button class="btn sec" onclick="$('#restore').click()">Restore backup</button></div>
+  <div class="mut" style="margin-top:6px">Your data lives only on this phone. Save a backup file regularly, especially before clearing browser data.</div>
+  <h2>Shop settings</h2><div class="card">
+  <label style="margin-top:0">Shop name</label><input value="${esc(db.settings.shop)}" onchange="db.settings.shop=this.value.trim()||'My Shop';save();render()">
+  <div class="two"><div><label>Currency symbol</label><input value="${esc(db.settings.cur)}" onchange="db.settings.cur=this.value;save();render()"></div>
+  <div><label>Default low-stock level</label><input inputmode="decimal" value="${db.settings.low}" onchange="db.settings.low=+this.value||0;save();render()"></div></div></div>
+  <div class="btns"><button class="btn sec" onclick="sample()">Load sample items</button><button class="btn sec" style="color:var(--out);border-color:var(--out)" onclick="wipe()">Erase all data</button></div>`;
+}
+async function dl(name,text,type){
+  const C=window.Capacitor;
+  if(C&&C.isNativePlatform&&C.isNativePlatform()){
+    try{const {Filesystem,Share}=C.Plugins;const r=await Filesystem.writeFile({path:name,data:text,directory:'CACHE',encoding:'utf8'});await Share.share({title:name,url:r.uri});}
+    catch(e){toast('Could not export file')}
+    return;
+  }
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;document.body.appendChild(a);a.click();a.remove();toast('Saved '+name)
+}
+const csv=rows=>rows.map(r=>r.map(c=>`"${String(c??'').replace(/"/g,'""')}"`).join(',')).join('\n');
+const stamp=()=>new Date().toISOString().slice(0,10);
+function csvStock(){dl(`stock-${stamp()}.csv`,csv([['SKU','Item','Category','Unit','Cost','Price','Stock in','Stock out','Balance','Value']].concat(db.items.map(i=>{const s=st(i.id);return[i.sku,i.name,i.cat,i.unit,i.cost,i.price,s.i,s.o,s.b,r2(s.b*i.cost)]}))),'text/csv')}
+function csvSales(){const r=[['Receipt','Date','Time','Item','Qty','Price','Line total','Method','Customer','Void']];db.sales.forEach(s=>s.lines.forEach(l=>r.push([s.no,dstr(s.date),tstr(s.date),l.name,l.qty,l.price,r2(l.qty*l.price),s.method,s.customer,s.void?'yes':''])));dl(`sales-${stamp()}.csv`,csv(r),'text/csv')}
+function backup(){dl(`tally-backup-${stamp()}.json`,JSON.stringify(db),'application/json')}
+$('#restore').addEventListener('change',e=>{
+  const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.items||!d.moves||!d.sales)throw 0;ask('This replaces everything currently in the app with the backup.','Restore',()=>{db=d;save();toast('Backup restored');render()})}catch(x){toast('That is not a valid backup file')}};
+  r.readAsText(f);e.target.value='';
+});
+function wipe(){ask('All items, sales and stock history will be deleted. Save a backup first if unsure.','Erase everything',()=>{db=blank();cart=[];save();render()})}
+function sample(){
+  [['Rice 1kg','Grocery','kg',1.1,1.5,50],['Cooking oil 1L','Grocery','btl',2.2,3,24],['Sugar 1kg','Grocery','kg',0.9,1.3,40],['Bar soap','Household','pcs',0.4,0.7,60],['Notebook A5','Stationery','pcs',0.8,1.5,30]].forEach(([name,cat,unit,cost,price,open])=>{
+    const n=db.seq.item++;const it={id:uid(),sku:name.replace(/[^a-z0-9]/gi,'').slice(0,3).toUpperCase()+'-'+String(n).padStart(3,'0'),name,cat,unit,cost,price,reorder:db.settings.low,created:Date.now()};db.items.push(it);addMove(it.id,'IN',open,'opening')});
+  save();toast('Sample items added');render();
+}
+render();
+</script>
+</body>
+</html>
